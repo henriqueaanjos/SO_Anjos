@@ -1,0 +1,48 @@
+#######################################
+# Syntax Coloring Map For OneWire
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+OneWireMod KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+reset	KEYWORD2
+write_bit	KEYWORD2
+read_bit	KEYWORD2
+write	KEYWORD2
+write_bytes	KEYWORD2
+read	KEYWORD2
+read_bytes	KEYWORD2
+select	KEYWORD2
+skip	KEYWORD2
+depower	KEYWORD2
+reset_search	KEYWORD2
+search	KEYWORD2
+crc8	KEYWORD2
+crc16	KEYWORD2
+check_crc16	KEYWORD2
+reset_ultrassom KEYWORD2
+reset_sensorCor KEYWORD2
+write_bit_100us KEYWORD2
+write_100us KEYWORD2
+write_bytes_100us KEYWORD2
+read_bit_ultrassom KEYWORD2
+read_ultrassom KEYWORD2
+read_bit_sensorCor KEYWORD2
+read_sensorCor KEYWORD2
+read_bytes_sensorCor KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################

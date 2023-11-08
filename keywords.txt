@@ -1,0 +1,11 @@
+SO_Anjos    KEYWORD1
+BAT KEYWORD2
+printTexto  KEYWORD2
+printNumero KEYWORD2
+getTouchSensorValue KEYWORD2
+getColorSensorValue KEYWORD2
+getUtrasonicSensorValue KEYWORD2
+getCodePin  KEYWORD2
+setMotorPin KEYWORD2
+updateValues    KEYWORD2
+startSO KEYWORD2
