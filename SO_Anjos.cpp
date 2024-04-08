@@ -74,10 +74,17 @@ Adafruit_ILI9341 SO_Anjos::tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
 SO_Anjos::SO_Anjos(){}
 
+// OneButton SO_Anjos::buttonUpLeft(49,true); 
+// OneButton SO_Anjos::buttonDownRight(38,true);
+// OneButton SO_Anjos::buttonUpRight(47,true);
+// OneButton SO_Anjos::buttonDownLeft(48,true);
+
 OneButton buttonUpLeft(49,true); 
 OneButton buttonDownRight(38,true);
 OneButton buttonUpRight(47,true);
 OneButton buttonDownLeft(48,true);
+
+
 
 int SO_Anjos::Filtro_Analog(int porta, int amostra, int diferenca){    // GERALMENTE USA 15 PARA AMOSTRA, 8 PARA DIFERENÇA
   int reads = 0;
@@ -103,6 +110,41 @@ void SO_Anjos::BAT(int a ){
 }
 
 //////////////////////////////////////////////////////// FUNÇÕES TELA ////////////////////////////////////////////////////////
+
+uint32_t SO_Anjos::hexStringToUInt(const char* hexString) {
+    uint32_t result = 0;
+    while (*hexString) {
+        char digit = *hexString;
+        if (digit >= '0' && digit <= '9') {
+            result = (result << 4) | (digit - '0');
+        } else if (digit >= 'A' && digit <= 'F') {
+            result = (result << 4) | (digit - 'A' + 10);
+        } else if (digit >= 'a' && digit <= 'f') {
+            result = (result << 4) | (digit - 'a' + 10);
+        }
+        hexString++;
+    }
+    return result;
+}
+
+// Função para converter cor hexadecimal para RGB565 usando apenas bitwise
+uint16_t SO_Anjos::hexToRGB565Bitwise(const char* hexColor) {
+    uint32_t rgbValue = hexStringToUInt(hexColor);
+
+    // Extrai os componentes Red, Green e Blue
+    uint8_t red = (rgbValue >> 16) & 0xFF;
+    uint8_t green = (rgbValue >> 8) & 0xFF;
+    uint8_t blue = rgbValue & 0xFF;
+
+    // Ajusta os valores para os bits correspondentes do formato RGB565 usando bitwise
+    uint16_t rgb565 = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+
+    return rgb565;
+}
+
+void SO_Anjos::paintScreen(uint16_t color){
+  tft.fillRect(0,32,240,281,color);
+}
 
 void SO_Anjos::printTexto(String text, uint16_t color, int x, int y,int textSize){
   tft.setCursor(x, y);
@@ -141,38 +183,6 @@ int SO_Anjos::getTouchSensorValue(int port){
     case 8: 
       return analogRead(P8) >= 600 ? 1 :0;
   }
-  /*Serial.print("A0: ");
-  Serial.println(analogRead(A0));
-  Serial.print("A1: ");
-  Serial.println(analogRead(A1));
-  Serial.print("A2: ");
-  Serial.println(analogRead(A2));
-  Serial.print("A3: ");
-  Serial.println(analogRead(A3));
-  Serial.print("A4: ");
-  Serial.println(analogRead(A4));
-  Serial.print("A5: ");
-  Serial.println(analogRead(A5));
-  Serial.print("A6: ");
-  Serial.println(analogRead(A6));
-  Serial.print("A7: ");
-  Serial.println(analogRead(A7));
-  Serial.print("A8: ");
-  Serial.println(analogRead(A8));
-  Serial.print("A9: ");
-  Serial.println(analogRead(A9));
-  Serial.print("A10: ");
-  Serial.println(analogRead(A10));
-  Serial.print("A11: ");
-  Serial.println(analogRead(A11));
-  Serial.print("A12: ");
-  Serial.println(analogRead(A12));
-  Serial.print("A13: ");
-  Serial.println(analogRead(A13));
-  Serial.print("A14: ");
-  Serial.println(analogRead(A14));
-  Serial.print("A15: ");
-  Serial.println(analogRead(A15));*/
 }
 
 byte SO_Anjos::getColorSensorValue(int port){
@@ -354,6 +364,24 @@ long SO_Anjos::getCodePin(uint8_t code){
 		default:break;
 	}
 }
+void SO_Anjos::resetCodePin(uint8_t code){
+  switch(code)
+	{
+		case m1: 
+    	MotorCodeCnt1 = 0;
+      break; 
+		case m2: 
+    	MotorCodeCnt2 = 0;
+      break; 
+		case m3: 
+    	MotorCodeCnt3 = 0;
+      break; 
+		case m4: 
+    	MotorCodeCnt4 = 0;
+      break; 
+		default:break;
+	}
+}
 
 void SO_Anjos::setMotorPin(byte motor, int value){
   
@@ -483,6 +511,10 @@ void SO_Anjos::setMotorPin(byte motor, int value){
 
 void SO_Anjos::TELA_MENU(){
   tft.setRotation(2);
+  buttonUpRight.attachClick(clickButtonUpRight);
+  buttonDownRight.attachClick(clickButtonDownRight);
+  buttonDownLeft.attachClick(clickButtonDownLeft);
+  buttonUpLeft.attachClick(clickButtonUpLeft);
   tft.drawLine(0, 30, 240, 30, ILI9341_WHITE);             // DESENHA UMA LINHA PARA O MENU
   tft.fillRect(3,6,105,21,ILI9341_BLACK);                   // APAGA O SETOR DO DISPLAY PARA NOVA ESCRITA
   printTexto("MENU", ILI9341_WHITE,8,9,2);
@@ -862,6 +894,63 @@ void SO_Anjos::updateValues(){
 
 
 //////////////////////////////////////////////////////// BOTÕES ////////////////////////////////////////////////////////
+
+
+typedef void (*buttonActionFunc)();
+typedef void (*buttonActionLongPressFunc)(void *oneButton);
+
+void SO_Anjos::defineButtonAction(int button, int state, buttonActionFunc func, buttonActionLongPressFunc longPressFunc){
+  switch(button){
+      case 2:
+          switch(state){
+              case 1:
+                  buttonDownLeft.attachClick(func);
+                  break;
+              case 2:
+                  buttonDownLeft.attachDoubleClick(func);
+                  break;
+              case 3:
+                  buttonDownLeft.attachLongPressStart(longPressFunc, &buttonDownLeft);
+                  break;
+              case 4:
+                  buttonDownLeft.attachDuringLongPress(longPressFunc, &buttonDownLeft);
+                  break;
+          }
+          break;
+      case 3:
+          switch(state){
+              case 1:
+                  buttonUpRight.attachClick(func);
+                  break;
+              case 2:
+                  buttonUpRight.attachDoubleClick(func);
+                  break;
+              case 3:
+                  buttonUpRight.attachLongPressStart(longPressFunc, &buttonUpRight);
+                  break;
+              case 4:
+                  buttonUpRight.attachDuringLongPress(longPressFunc, &buttonUpRight);
+                  break;
+          }
+          break;
+      case 4:
+          switch(state){
+              case 1:
+                  buttonDownRight.attachClick(func);
+                  break;
+              case 2:
+                  buttonDownRight.attachDoubleClick(func);
+                  break;
+              case 3:
+                  buttonDownRight.attachLongPressStart(longPressFunc, &buttonDownRight);
+                  break;
+              case 4:
+                  buttonDownRight.attachDuringLongPress(longPressFunc, &buttonDownRight);
+                  break;
+          }
+          break;
+  }
+}
 
 void SO_Anjos::clickButtonDownRight() { //Botão -
   Serial.print("tela :");

@@ -39,19 +39,19 @@ class SO_Anjos{
         static int startProgram;
         static int setupProgram;
 
-        int ButtonDL = 48;
-        int ButtonUL = 49;
-        int ButtonDR = 38;
-        int ButtonUR = 47;
+        
 
         SO_Anjos();
         void BAT(int a);
+        static uint16_t hexToRGB565Bitwise(const char* hexColor);
+        static void paintScreen(uint16_t color);
         static void printTexto(String text, uint16_t color, int x, int y,int textSize);
         static void printNumero(int text, uint16_t color, int x, int y,int textSize);
         static int getTouchSensorValue(int port);
         static byte getColorSensorValue(int port);
         static byte getUtrasonicSensorValue(int port);
         static long getCodePin(uint8_t code);
+        static void resetCodePin(uint8_t code);
         static void setMotorPin(byte motor, int value);
         void updateValues();
         void startSO();
@@ -61,9 +61,19 @@ class SO_Anjos{
         static void clickButtonDownLeft();
         static void clickButtonUpLeft();
 
+        typedef void (*buttonActionFunc)();
+        typedef void (*buttonActionLongPressFunc)(void *oneButton);
+
+        static void defineButtonAction(int button, int state, buttonActionFunc func, buttonActionLongPressFunc longPressFunc);
+
         void tickButtons();
+
         static Adafruit_ILI9341 tft;
 
+        // static OneButton buttonUpLeft(); 
+        // static OneButton buttonDownRight();
+        // static OneButton buttonUpRight();
+        // static OneButton buttonDownLeft();
 
 
     private:
@@ -120,6 +130,11 @@ class SO_Anjos{
         static uint8_t cmd;
         static int dist;
 
+        int ButtonDL = 48;
+        int ButtonUL = 49;
+        int ButtonDR = 38;
+        int ButtonUR = 47;
+
         
 
         static int Filtro_Analog(int porta, int amostra, int diferenca);
@@ -134,6 +149,7 @@ class SO_Anjos{
         static void telaSensores();
         static void telaProgram();
         static void updateSelection();
+        static uint32_t hexStringToUInt(const char* hexString);
 };
 
 
